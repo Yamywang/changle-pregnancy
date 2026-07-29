@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="长乐备孕打卡" />
+  <meta name="theme-color" content="#f4a8c4" />
+  <title>长乐²⁰²⁶ 备孕打卡工作台</title>
+  <style>
+    :root {
+      --bg: #fbeef2;
+      --card: #ffffff;
+      --primary: #e08aa8;
+      --primary-dark: #b65c79;
+      --primary-soft: #f7d8e3;
+      --primary-very-soft: #fce8ee;
+      --accent: #d4a4c4;
+      --text: #3d2a32;
+      --text-sub: #7a5e69;
+      --text-soft: #b3a0a8;
+      --line: #f0d8e0;
+      --green: #4ea866;
+      --green-soft: #d8f2dd;
+      --orange: #e88a3c;
+      --orange-soft: #fce6cf;
+      --purple: #9a7cc4;
+      --purple-soft: #ece0f5;
+      --sidebar-w: 52px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html { height: 100%; }
+    body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 状态栏 */
+    .statusbar {
+      height: 44px; padding: 0 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--bg);
+      color: #1f1f1f; font-size: 15px; font-weight: 600;
+      flex-shrink: 0;
+    }
+    .statusbar .right { display: flex; align-items: center; gap: 6px; }
+    .signal { display: flex; align-items: flex-end; gap: 2px; height: 12px; }
+    .signal span { width: 3px; background: #1f1f1f; border-radius: 1px; display: block; }
+    .signal span:nth-child(1) { height: 4px; }
+    .signal span:nth-child(2) { height: 6px; }
+    .signal span:nth-child(3) { height: 8px; }
+    .signal span:nth-child(4) { height: 10px; }
+    .battery {
+      width: 24px; height: 12px;
+      border: 1px solid #1f1f1f;
+      border-radius: 2px;
+      padding: 1px;
+      display: flex; align-items: center;
+      position: relative;
+    }
+    .battery::after { content: ""; position: absolute; right: -3px; top: 3px; width: 2px; height: 5px; background: #1f1f1f; border-radius: 0 1px 1px 0; }
+    .battery .lvl { width: 84%; height: 100%; background: #1f1f1f; border-radius: 1px; }
+
+    /* 顶栏 */
+    .header {
+      background: linear-gradient(135deg, #f4a8c4 0%, #d4a4c4 100%);
+      padding: 8px 14px 12px;
+      color: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(224, 138, 168, 0.25);
+    }
+    .header .left { display: flex; align-items: center; gap: 10px; }
+    .avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid rgba(255,255,255,0.6);
+    }
+    .brand { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+    .brand .sub { font-size: 11px; opacity: 0.9; font-weight: 400; }
+    .date { text-align: right; font-size: 11px; opacity: 0.9; }
+    .date .big { font-size: 15px; font-weight: 700; display: block; }
+
+    /* 主体 */
+    .main { display: flex; flex: 1; min-width: 0; width: 100%; }
+
+    /* 左侧导航 */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--card);
+      border-right: 1px solid var(--line);
+      overflow-y: auto;
+      flex-shrink: 0;
+      padding: 8px 0 20px;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .sidebar::-webkit-scrollbar { width: 0; }
+    .nav-item {
+      width: 58px;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 9px 2px;
+      color: var(--text-sub);
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.2s;
+      gap: 4px;
+      position: relative;
+    }
+    .nav-item:active { background: var(--primary-soft); }
+    .nav-item.active {
+      color: var(--primary-dark);
+      font-weight: 600;
+      background: var(--primary-soft);
+    }
+    .nav-item .ic {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .nav-item .label { font-size: 10px; text-align: center; line-height: 1.2; }
+
+    .ic-pink { background: var(--primary-soft); color: var(--primary-dark); }
+    .ic-orange { background: var(--orange-soft); color: var(--orange); }
+    .ic-green { background: var(--green-soft); color: var(--green); }
+    .ic-purple { background: var(--purple-soft); color: var(--purple); }
+
+    /* 内容区 - 关键:可滚动 */
+    .content {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 12px 10px 60px;
+      background: var(--bg);
+    }
+    .content::-webkit-scrollbar { width: 0; }
+
+    .page { display: none; width: 100%; }
+    .page.active { display: block; }
+
+    /* 今日概览 */
+    .today-hero {
+      background: linear-gradient(135deg, #f4a8c4 0%, #e0a4d4 100%);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(224, 138, 168, 0.2);
+    }
+    .today-hero .row1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .today-hero .title { font-size: 15px; font-weight: 700; }
+    .today-hero .date-str { font-size: 11px; }
+    .progress-track {
+      height: 8px;
+      background: rgba(255,255,255,0.35);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .progress-track .fill {
+      height: 100%; background: #fff;
+      border-radius: 4px; width: 0%;
+      transition: width 0.4s;
+    }
+    .progress-text { font-size: 12px; color: #fff; display: flex; justify-content: space-between; min-width: 0; }
+    .progress-text span { white-space: nowrap; }
+    .progress-text b { font-size: 14px; font-weight: 700; }
+
+    /* 卡片 */
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 6px rgba(180, 92, 121, 0.06);
+    }
+    .card-title {
+      display: flex; align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .card-title .ic {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .card-title h3 { font-size: 15px; font-weight: 700; color: var(--text); }
+    .card-title .sub { font-size: 11px; color: var(--text-sub); margin-left: auto; text-align: right; line-height: 1.3; }
+
+    /* 选项按钮组 */
+    .opt-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .opt-btn {
+      padding: 8px 14px;
+      background: var(--primary-very-soft);
+      border: 1.5px solid transparent;
+      border-radius: 10px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+    .opt-btn:active { transform: scale(0.96); }
+    .opt-btn.on {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 2px 6px rgba(224, 138, 168, 0.4);
+    }
+
+    /* 多选标签 */
+    .tag-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag-btn {
+      padding: 8px 14px;
+      background: var(--primary-very-soft);
+      border: 1.5px solid var(--line);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tag-btn:active { transform: scale(0.96); }
+    .tag-btn.on {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* 一键打卡行 */
+    .punch-row {
+      display: flex; align-items: center;
+      gap: 10px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .punch-row:last-child { border-bottom: none; }
+    .punch-info { flex: 1; min-width: 0; }
+    .punch-name { font-size: 14px; color: var(--text); font-weight: 500; line-height: 1.4; }
+    .punch-meta { font-size: 11px; color: var(--text-sub); margin-top: 2px; line-height: 1.3; }
+    .punch-btn {
+      width: 28px; height: 28px;
+      min-width: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fff;
+      color: transparent;
+      border: 2px solid var(--primary);
+      font-size: 0;
+      position: relative;
+    }
+    .punch-btn::after {
+      content: "";
+      position: absolute;
+      width: 5px; height: 10px;
+      border: 2px solid transparent;
+      border-top: 0; border-left: 0;
+      transform: rotate(45deg) translate(-1px,-1px);
+    }
+    .punch-btn.on { background: var(--green); border-color: var(--green); }
+    .punch-btn.on::after { border-color: #fff; }
+    .punch-btn::after { content: ""; width: 5px; height: 10px; border: 2px solid transparent; border-top: 0; border-left: 0; transform: rotate(45deg) translate(-1px,-1px); }
+    .punch-btn.on {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+    .punch-btn.on::after { border-color: #fff; }
+
+    /* 计时器行 */
+    .timer-row {
+      display: flex; align-items: center;
+      gap: 10px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .timer-row:last-child { border-bottom: none; }
+    .timer-info { flex: 1; min-width: 0; }
+    .timer-name { font-size: 14px; color: var(--text); font-weight: 500; }
+    .timer-display {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      font-variant-numeric: tabular-nums;
+      padding: 0 8px;
+      min-width: 65px;
+      text-align: center;
+    }
+    .timer-btns { display: flex; gap: 6px; }
+    .t-btn {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    .t-btn:active { transform: scale(0.92); }
+    .t-start { background: var(--primary); color: #fff; }
+    .t-pause { background: var(--primary-soft); color: var(--primary-dark); }
+    .t-done { background: var(--green); color: #fff; }
+
+    /* 数量计数 */
+    .count-row {
+      display: flex; align-items: center;
+      gap: 10px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .count-row:last-child { border-bottom: none; }
+    .count-info { flex: 1; min-width: 0; }
+    .count-name { font-size: 14px; color: var(--text); font-weight: 500; }
+    .count-meta { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+    .count-ctrl { display: flex; align-items: center; gap: 8px; }
+    .count-val {
+      min-width: 50px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+    .c-btn {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 700;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      transition: all 0.2s;
+    }
+    .c-btn:active { transform: scale(0.9); }
+
+    /* 备注框 */
+    .note-input {
+      width: 100%;
+      background: var(--primary-very-soft);
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      font-family: inherit;
+      resize: none;
+      min-height: 42px;
+    }
+    .note-input:focus { border-color: var(--primary); background: #fff; }
+    .note-input::placeholder { color: var(--text-soft); }
+
+    .note-block { margin-bottom: 12px; }
+    .note-block:last-child { margin-bottom: 0; }
+    .note-label { font-size: 12px; color: var(--text-sub); margin-bottom: 6px; font-weight: 500; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(61, 42, 50, 0.92);
+      color: #fff;
+      padding: 9px 16px;
+      border-radius: 22px;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* 日期选择面板 */
+    .date-modal {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      display: none;
+      align-items: center; justify-content: center;
+    }
+    .date-modal.show { display: flex; }
+    .date-panel {
+      background: #fff;
+      border-radius: 18px;
+      width: 88%; max-width: 340px;
+      padding: 18px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .date-panel h4 {
+      font-size: 15px; font-weight: 700; color: var(--text);
+      text-align: center; margin-bottom: 14px;
+    }
+    .date-list { display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow-y: auto; }
+    .date-list::-webkit-scrollbar { width: 0; }
+    .date-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1.5px solid var(--line);
+    }
+    .date-item:active { background: var(--primary-very-soft); }
+    .date-item.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .date-item .left { display: flex; flex-direction: column; gap: 2px; }
+    .date-item .d-date { font-size: 14px; font-weight: 600; }
+    .date-item .d-week { font-size: 11px; opacity: 0.8; }
+    .date-item .d-prog { font-size: 12px; font-weight: 600; }
+    .date-item.active .d-week { opacity: 0.9; }
+    .date-close {
+      margin-top: 12px;
+      padding: 11px;
+      text-align: center;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      border-radius: 12px;
+      font-size: 13px; font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* 非今天提示条 */
+    .day-banner {
+      background: #fff;
+      border: 1.5px dashed var(--accent);
+      color: var(--accent);
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      text-align: center;
+      display: none;
+    }
+    .day-banner.show { display: block; }
+    .day-banner b { font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="statusbar">
+    <div class="left" id="clockTime">12:50</div>
+    <div class="right">
+      <div class="signal"><span></span><span></span><span></span><span></span></div>
+      <div class="battery"><div class="lvl"></div></div>
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="left">
+      <div class="avatar">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c-4 4-4 12 0 16"/><path d="M12 2c4 4 4 12 0 16"/><circle cx="12" cy="10" r="2.5"/></svg>
+      </div>
+      <div>
+        <div class="brand">长乐²⁰²⁶ <span class="sub">备孕打卡</span></div>
+      </div>
+    </div>
+    <div class="date" id="dateSwitch" onclick="openDatePicker()" style="cursor:pointer">
+      <span class="big" id="todayDate">7/29</span>
+      <span id="todayWeek">周三</span>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- 左侧导航 6 项 -->
+    <div class="sidebar">
+      <div class="nav-item active" data-page="meal">
+        <div class="ic ic-green">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>
+        </div>
+        <div class="label">三餐饮食</div>
+      </div>
+      <div class="nav-item" data-page="sleep">
+        <div class="ic ic-purple">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </div>
+        <div class="label">早睡</div>
+      </div>
+      <div class="nav-item" data-page="warm">
+        <div class="ic ic-orange">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-1.072-3.571-.036-6C9.5 2.5 8 4 8 4c-3.5 2.5-4.5 6.5-2.5 9 .6.8 1.7 1.5 3 1.5z"/><path d="M15.5 14.5A2.5 2.5 0 0 1 13 12c0-1.38.5-2 1-3 1.072-2.143 1.072-3.571.036-6C14.5 2.5 16 4 16 4c3.5 2.5 4.5 6.5 2.5 9-.6.8-1.7 1.5-3 1.5z"/></svg>
+        </div>
+        <div class="label">暖身</div>
+      </div>
+      <div class="nav-item" data-page="sport">
+        <div class="ic ic-orange">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </div>
+        <div class="label">运动</div>
+      </div>
+      <div class="nav-item" data-page="mood">
+        <div class="ic ic-pink">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </div>
+        <div class="label">好心情</div>
+      </div>
+      <div class="nav-item" data-page="period">
+        <div class="ic ic-pink">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="label">生理期</div>
+      </div>
+    </div>
+
+    <!-- 内容区 -->
+    <div class="content">
+
+      <!-- 非今天提示条 -->
+      <div class="day-banner" id="dayBanner">
+        正在查看 <b id="bannerDate">7/28</b> 的打卡记录 · <span id="bannerDone">0</b>/15 项
+      </div>
+
+      <!-- 今日概览(每个页面都显示) -->
+      <div class="today-hero">
+        <div class="row1">
+          <div class="title">今日备孕打卡</div>
+          <div class="date-str" id="heroDate">2026.07.29</div>
+        </div>
+        <div class="progress-track"><div class="fill" id="heroFill"></div></div>
+        <div class="progress-text">
+          <span>已完成</span>
+          <span><b id="heroDone">0</b> / <span id="heroTotal">15</span> 项</span>
+        </div>
+      </div>
+
+      <!-- 三餐饮食 -->
+      <div class="page active" data-page="meal">
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-green"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg></div>
+            <h3>三餐饮食</h3>
+            <span class="sub">膳食纤维+主食+优质蛋白</span>
+          </div>
+          <div class="punch-row">
+            <div class="punch-info">
+              <div class="punch-name">早餐</div>
+              <div class="punch-meta">膳食纤维 + 主食 + 优质蛋白</div>
+            </div>
+            <div class="punch-btn" data-key="breakfast">打卡</div>
+          </div>
+          <div class="punch-row">
+            <div class="punch-info">
+              <div class="punch-name">午餐</div>
+              <div class="punch-meta">膳食纤维 + 主食 + 优质蛋白</div>
+            </div>
+            <div class="punch-btn" data-key="lunch">打卡</div>
+          </div>
+          <div class="punch-row">
+            <div class="punch-info">
+              <div class="punch-name">晚餐</div>
+              <div class="punch-meta">膳食纤维 + 主食 + 优质蛋白</div>
+            </div>
+            <div class="punch-btn" data-key="dinner">打卡</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-pink"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5l10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 0 0-1.3 2.5L2 19l3.5-.5a4.95 4.95 0 0 0 2.5-1.3z"/><circle cx="15" cy="9" r="1"/></svg></div>
+            <h3>补剂</h3>
+          </div>
+          <div class="punch-row">
+            <div class="punch-info"><div class="punch-name">维生素 D</div></div>
+            <div class="punch-btn" data-key="vitamin-d">打卡</div>
+          </div>
+          <div class="punch-row">
+            <div class="punch-info"><div class="punch-name">叶酸</div></div>
+            <div class="punch-btn" data-key="folic">打卡</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-orange"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg></div>
+            <h3>姜茶</h3>
+            <span class="sub">7:00 - 9:00</span>
+          </div>
+          <div class="punch-row">
+            <div class="punch-info">
+              <div class="punch-name">晨起姜茶</div>
+              <div class="punch-meta">建议 7:00-9:00 饮用</div>
+            </div>
+            <div class="punch-btn" data-key="ginger">打卡</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-pink"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+            <h3>抓老公</h3>
+          </div>
+          <div class="punch-row">
+            <div class="punch-info"><div class="punch-name">陪运动</div></div>
+            <div class="punch-btn" data-key="hubby-sport">打卡</div>
+          </div>
+          <div class="punch-row">
+            <div class="punch-info"><div class="punch-name">陪早睡</div></div>
+            <div class="punch-btn" data-key="hubby-sleep">打卡</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 早睡 -->
+      <div class="page" data-page="sleep">
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-purple"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+            <h3>早睡</h3>
+            <span class="sub">选择今晚目标</span>
+          </div>
+          <div class="opt-group" id="sleepTime">
+            <div class="opt-btn" data-key="sleep">21:00</div>
+            <div class="opt-btn" data-key="sleep">21:30</div>
+            <div class="opt-btn on" data-key="sleep">22:00</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-purple"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+            <h3>晚上烤灯</h3>
+            <span class="sub">选已烤穴位</span>
+          </div>
+          <div class="tag-group" id="nightLampTags">
+            <div class="tag-btn" data-key="nl-baihui">鹳顶</div>
+            <div class="tag-btn" data-key="nl-zusanli">足三里</div>
+            <div class="tag-btn" data-key="nl-jiexi">解溪</div>
+            <div class="tag-btn" data-key="nl-yongquan">涌泉</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 暖身 -->
+      <div class="page" data-page="warm">
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-orange"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+            <h3>白天烤灯</h3>
+            <span class="sub">选已烤部位</span>
+          </div>
+          <div class="tag-group" id="lampTags">
+            <div class="tag-btn" data-key="lamp-hip">屁股</div>
+            <div class="tag-btn" data-key="lamp-garden">小花园</div>
+            <div class="tag-btn" data-key="lamp-baliao">八髎</div>
+            <div class="tag-btn" data-key="lamp-belly">小腹</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-orange"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>
+            <h3>晒背</h3>
+            <span class="sub">选择时长</span>
+          </div>
+          <div class="opt-group" id="sunOpts">
+            <div class="opt-btn" data-key="sun" data-val="30">30分钟</div>
+            <div class="opt-btn" data-key="sun" data-val="60">60分钟</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-orange"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/></svg></div>
+            <h3>姜茶</h3>
+            <span class="sub">7:00 - 9:00</span>
+          </div>
+          <div class="punch-row">
+            <div class="punch-info">
+              <div class="punch-name">晨起姜茶</div>
+              <div class="punch-meta">建议 7:00-9:00 饮用</div>
+            </div>
+            <div class="punch-btn" data-key="ginger">打卡</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 运动 -->
+      <div class="page" data-page="sport">
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-orange"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg></div>
+            <h3>运动打卡</h3>
+          </div>
+          <div class="timer-row">
+            <div class="timer-info"><div class="timer-name">力量训练</div></div>
+            <div class="timer-display" id="timer-1">30:00</div>
+            <div class="timer-btns">
+              <div class="t-btn t-start" data-timer="1">▶</div>
+              <div class="t-btn t-pause" data-timer="1" data-act="pause">⏸</div>
+              <div class="t-btn t-done" data-timer="1" data-act="done">✓</div>
+            </div>
+          </div>
+          <div class="timer-row">
+            <div class="timer-info"><div class="timer-name">有氧运动</div></div>
+            <div class="timer-display" id="timer-2">30:00</div>
+            <div class="timer-btns">
+              <div class="t-btn t-start" data-timer="2">▶</div>
+              <div class="t-btn t-pause" data-timer="2" data-act="pause">⏸</div>
+              <div class="t-btn t-done" data-timer="2" data-act="done">✓</div>
+            </div>
+          </div>
+          <div class="timer-row">
+            <div class="timer-info"><div class="timer-name">踩指压板</div></div>
+            <div class="timer-display" id="timer-3">20:00</div>
+            <div class="timer-btns">
+              <div class="t-btn t-start" data-timer="3">▶</div>
+              <div class="t-btn t-pause" data-timer="3" data-act="pause">⏸</div>
+              <div class="t-btn t-done" data-timer="3" data-act="done">✓</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-pink"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a3 3 0 1 0-6 0 3 3 0 0 0 6 0z"/><path d="M6 21a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/><path d="M12 11v4"/></svg></div>
+            <h3>拍腹股沟</h3>
+          </div>
+          <div class="count-row">
+            <div class="count-info">
+              <div class="count-name">今日拍打</div>
+              <div class="count-meta">目标 2000-5000 下</div>
+            </div>
+            <div class="count-ctrl">
+              <div class="c-btn" data-count="pat" data-d="-500">−</div>
+              <div class="count-val" id="count-pat">0</div>
+              <div class="c-btn" data-count="pat" data-d="500">+</div>
+            </div>
+          </div>
+          <div class="opt-group" style="margin-top:10px" id="patOpts">
+            <div class="opt-btn" data-key="pat" data-val="2000">2000下</div>
+            <div class="opt-btn" data-key="pat" data-val="3000">3000下</div>
+            <div class="opt-btn" data-key="pat" data-val="4000">4000下</div>
+            <div class="opt-btn" data-key="pat" data-val="5000">5000下</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 好心情 -->
+      <div class="page" data-page="mood">
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-pink"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+            <h3>好心情</h3>
+          </div>
+          <div class="punch-row">
+            <div class="punch-info">
+              <div class="punch-name">今日心情</div>
+              <div class="punch-meta">保持愉悦,好孕自来</div>
+            </div>
+            <div class="punch-btn" data-key="good-mood">打卡</div>
+          </div>
+          <div class="punch-row">
+            <div class="punch-info">
+              <div class="punch-name">蛋白质摄入</div>
+              <div class="punch-meta">每日优质蛋白达标</div>
+            </div>
+            <div class="punch-btn" data-key="protein">打卡</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-pink"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+            <h3>抓老公</h3>
+          </div>
+          <div class="punch-row">
+            <div class="punch-info"><div class="punch-name">陪运动</div></div>
+            <div class="punch-btn" data-key="hubby-sport">打卡</div>
+          </div>
+          <div class="punch-row">
+            <div class="punch-info"><div class="punch-name">陪早睡</div></div>
+            <div class="punch-btn" data-key="hubby-sleep">打卡</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 生理期 -->
+      <div class="page" data-page="period">
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-pink"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <h3>生理期记录</h3>
+          </div>
+          <div class="note-block">
+            <div class="note-label">经期时间</div>
+            <input class="note-input" data-note="period" placeholder="例:7/15-7/20" />
+          </div>
+          <div class="note-block">
+            <div class="note-label">排卵期</div>
+            <input class="note-input" data-note="ovulation" placeholder="例:7/28-8/03" />
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-pink"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <h3>备注</h3>
+          </div>
+          <div class="note-block">
+            <input class="note-input" data-note="period-memo" placeholder="记录身体变化、症状、备注…" style="min-height:80px" />
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 日期选择面板 -->
+  <div class="date-modal" id="dateModal" onclick="if(event.target===this)closeDatePicker()">
+    <div class="date-panel">
+      <h4>选择日期查看打卡记录</h4>
+      <div class="date-list" id="dateList"></div>
+      <div class="date-close" onclick="closeDatePicker()">关闭</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    var toast = document.getElementById('toast');
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(function() { toast.classList.remove('show'); }, 1500);
+    }
+
+    // ===== 日期维度核心 =====
+    var wdNames = ['日','一','二','三','四','五','六'];
+    function pad(n) { return n < 10 ? '0' + n : n; }
+    function formatDate(d) {
+      return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+    }
+    function parseDate(s) {
+      var p = s.split('-');
+      return new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+    }
+    // 当前查看的日期,默认今天
+    var todayStr = formatDate(new Date());
+    var currentDate = todayStr;
+
+    function dateKey(prefix) { return 'cl-' + currentDate + '-' + prefix; }
+
+    // 显示日期到 header
+    function renderHeaderDate() {
+      var d = parseDate(currentDate);
+      document.getElementById('todayDate').textContent = (d.getMonth()+1) + '/' + d.getDate();
+      document.getElementById('todayWeek').textContent = '周' + wdNames[d.getDay()];
+      document.getElementById('heroDate').textContent = d.getFullYear() + '.' + pad(d.getMonth()+1) + '.' + pad(d.getDate());
+      // 非今天显示提示条
+      var banner = document.getElementById('dayBanner');
+      if (currentDate === todayStr) {
+        banner.classList.remove('show');
+      } else {
+        banner.classList.add('show');
+        document.getElementById('bannerDate').textContent = (d.getMonth()+1) + '/' + d.getDate();
+      }
+    }
+
+    // 时钟
+    var now = new Date();
+    document.getElementById('clockTime').textContent = pad(now.getHours()) + ':' + pad(now.getMinutes());
+
+    var totalItems = 15;
+    document.getElementById('heroTotal').textContent = totalItems;
+
+    // 导航切换
+    document.querySelectorAll('.nav-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.nav-item').forEach(function(i) { i.classList.remove('active'); });
+        item.classList.add('active');
+        var page = item.dataset.page;
+        document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+        var target = document.querySelector('.page[data-page="' + page + '"]');
+        if (target) target.classList.add('active');
+        document.querySelector('.content').scrollTop = 0;
+      });
+    });
+
+    // ===== 按当前日期加载所有状态 =====
+    function loadState() {
+      // 清空所有 UI 状态
+      document.querySelectorAll('.punch-btn.on, .check-sq.on, .tag-btn.on, .opt-btn.on').forEach(function(el) {
+        el.classList.remove('on');
+      });
+      // 还原所有计时器显示
+      for (var i = 1; i <= 3; i++) {
+        var t = document.getElementById('timer-' + i);
+        if (t) { t.style.color = ''; t.textContent = formatTime(initTimes[i]); timers[i] = initTimes[i]; }
+      }
+      // 还原 patCount
+      patCount = parseInt(localStorage.getItem(dateKey('count-pat')) || '0', 10);
+      var patEl = document.getElementById('count-pat');
+      if (patEl) patEl.textContent = patCount;
+
+      // 单选组
+      ['sleepTime','sunOpts','patOpts'].forEach(function(gid) {
+        var group = document.getElementById(gid);
+        if (!group) return;
+        group.querySelectorAll('.opt-btn').forEach(function(btn) {
+          var k = btn.dataset.key;
+          var savedVal = localStorage.getItem(dateKey('opt-' + k));
+          if (savedVal && btn.dataset.val === savedVal) btn.classList.add('on');
+        });
+      });
+      // 多选标签组
+      ['lampTags','nightLampTags'].forEach(function(gid) {
+        var group = document.getElementById(gid);
+        if (!group) return;
+        group.querySelectorAll('.tag-btn').forEach(function(btn) {
+          var k = btn.dataset.key;
+          if (localStorage.getItem(dateKey('tag-' + k)) === 'true') btn.classList.add('on');
+        });
+      });
+      // 一键打卡按钮
+      document.querySelectorAll('.punch-btn').forEach(function(btn) {
+        var k = btn.dataset.key;
+        if (localStorage.getItem(dateKey('punch-' + k)) === 'true') {
+          document.querySelectorAll('.punch-btn[data-key="' + k + '"]').forEach(function(b) {
+            b.classList.add('on');
+          });
+        }
+      });
+      // 备注框
+      document.querySelectorAll('.note-input').forEach(function(input) {
+        var k = input.dataset.note;
+        var saved = localStorage.getItem(dateKey('note-' + k));
+        input.value = saved || '';
+      });
+      // 计时器完成状态
+      for (var j = 1; j <= 3; j++) {
+        (function(idx) {
+          if (localStorage.getItem(dateKey('timerdone-timer-' + idx)) === 'true') {
+            var el = document.getElementById('timer-' + idx);
+            if (el) { el.style.color = '#4ea866'; el.textContent = '已完成'; }
+          }
+        })(j);
+      }
+      updateProgress();
+    }
+
+    // 进度更新
+    function updateProgress() {
+      var done = 0;
+      var punchKeys = ['ginger','breakfast','lunch','dinner','vitamin-d','folic','hubby-sport','hubby-sleep','good-mood','protein'];
+      punchKeys.forEach(function(k) {
+        if (localStorage.getItem(dateKey('punch-' + k)) === 'true') done++;
+      });
+      ['timer-1','timer-2','timer-3'].forEach(function(k) {
+        if (localStorage.getItem(dateKey('timerdone-' + k)) === 'true') done++;
+      });
+      ['lampTags','nightLampTags'].forEach(function(gid) {
+        var group = document.getElementById(gid);
+        if (group && group.querySelector('.tag-btn.on')) done++;
+      });
+      ['sleepTime','sunOpts','patOpts'].forEach(function(gid) {
+        var group = document.getElementById(gid);
+        if (group && group.querySelector('.opt-btn.on')) done++;
+      });
+      document.getElementById('heroDone').textContent = done;
+      document.getElementById('heroFill').style.width = (done / totalItems * 100) + '%';
+      // 同步 banner
+      if (currentDate !== todayStr) {
+        document.getElementById('bannerDone').textContent = done;
+      }
+    }
+
+    // 计算某日完成度(用于日期选择面板)
+    function getDoneForDate(dateStr) {
+      var done = 0;
+      var punchKeys = ['ginger','breakfast','lunch','dinner','vitamin-d','folic','hubby-sport','hubby-sleep','good-mood','protein'];
+      punchKeys.forEach(function(k) {
+        if (localStorage.getItem('cl-' + dateStr + '-punch-' + k) === 'true') done++;
+      });
+      ['timer-1','timer-2','timer-3'].forEach(function(k) {
+        if (localStorage.getItem('cl-' + dateStr + '-timerdone-' + k) === 'true') done++;
+      });
+      ['lampTags','nightLampTags'].forEach(function(gid) {
+        var group = document.getElementById(gid);
+        if (!group) return;
+        var any = false;
+        group.querySelectorAll('.tag-btn').forEach(function(btn) {
+          if (localStorage.getItem('cl-' + dateStr + '-tag-' + btn.dataset.key) === 'true') any = true;
+        });
+        if (any) done++;
+      });
+      ['sleepTime','sunOpts','patOpts'].forEach(function(gid) {
+        var group = document.getElementById(gid);
+        if (!group) return;
+        var any = false;
+        group.querySelectorAll('.opt-btn').forEach(function(btn) {
+          if (localStorage.getItem('cl-' + dateStr + '-opt-' + btn.dataset.key)) any = true;
+        });
+        if (any) done++;
+      });
+      return done;
+    }
+
+    // ===== 日期选择面板 =====
+    function openDatePicker() {
+      var list = document.getElementById('dateList');
+      list.innerHTML = '';
+      // 最近 14 天
+      for (var i = 13; i >= 0; i--) {
+        var d = new Date();
+        d.setDate(d.getDate() - i);
+        var ds = formatDate(d);
+        var done = getDoneForDate(ds);
+        var item = document.createElement('div');
+        item.className = 'date-item' + (ds === currentDate ? ' active' : '');
+        var label = (d.getMonth()+1) + '/' + d.getDate() + (ds === todayStr ? ' (今天)' : (i === 1 ? ' (昨天)' : ''));
+        item.innerHTML = '<div class="left"><div class="d-date">' + label + '</div><div class="d-week">周' + wdNames[d.getDay()] + '</div></div><div class="d-prog">' + done + '/' + totalItems + '</div>';
+        (function(dateStr) {
+          item.addEventListener('click', function() {
+            currentDate = dateStr;
+            renderHeaderDate();
+            loadState();
+            closeDatePicker();
+            showToast('已切换到 ' + dateStr.slice(5).replace('-', '/'));
+          });
+        })(ds);
+        list.appendChild(item);
+      }
+      document.getElementById('dateModal').classList.add('show');
+    }
+    function closeDatePicker() {
+      document.getElementById('dateModal').classList.remove('show');
+    }
+
+    // 单选组(绑定事件,状态由 loadState 恢复)
+    ['sleepTime','sunOpts','patOpts'].forEach(function(gid) {
+      var group = document.getElementById(gid);
+      if (!group) return;
+      group.querySelectorAll('.opt-btn').forEach(function(btn) {
+        var k = btn.dataset.key;
+        btn.addEventListener('click', function() {
+          group.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('on'); });
+          btn.classList.add('on');
+          localStorage.setItem(dateKey('opt-' + k), btn.dataset.val || btn.textContent);
+          showToast('已选择 ' + btn.textContent);
+          updateProgress();
+        });
+      });
+    });
+
+    // 多选标签组
+    ['lampTags','nightLampTags'].forEach(function(gid) {
+      var group = document.getElementById(gid);
+      if (!group) return;
+      group.querySelectorAll('.tag-btn').forEach(function(btn) {
+        var k = btn.dataset.key;
+        btn.addEventListener('click', function() {
+          btn.classList.toggle('on');
+          localStorage.setItem(dateKey('tag-' + k), btn.classList.contains('on'));
+          showToast(btn.textContent + (btn.classList.contains('on') ? ' 已打卡' : ' 已取消'));
+          updateProgress();
+        });
+      });
+    });
+
+    // 一键打卡按钮
+    document.querySelectorAll('.punch-btn').forEach(function(btn) {
+      var k = btn.dataset.key;
+      btn.addEventListener('click', function() {
+        var isOn = !btn.classList.contains('on');
+        document.querySelectorAll('.punch-btn[data-key="' + k + '"]').forEach(function(b) {
+          b.classList.toggle('on', isOn);
+        });
+        localStorage.setItem(dateKey('punch-' + k), isOn);
+        var name = btn.previousElementSibling.querySelector('.punch-name').textContent;
+        showToast(name + (isOn ? ' 已打卡 ✓' : ' 已取消'));
+        updateProgress();
+      });
+    });
+
+    // 备注框
+    document.querySelectorAll('.note-input').forEach(function(input) {
+      var k = input.dataset.note;
+      input.addEventListener('input', function() {
+        localStorage.setItem(dateKey('note-' + k), input.value);
+      });
+    });
+
+    // 计时器
+    var timers = {1: 30*60, 2: 30*60, 3: 20*60};
+    var initTimes = {1: 30*60, 2: 30*60, 3: 20*60};
+    var timerIntervals = {1: null, 2: null, 3: null};
+    var timerNames = {1: '力量训练', 2: '有氧运动', 3: '踩指压板'};
+    function formatTime(s) {
+      var m = Math.floor(s / 60);
+      var sec = s % 60;
+      return m + ':' + (sec < 10 ? '0' : '') + sec;
+    }
+    function updateTimerDisplay(i) {
+      var el = document.getElementById('timer-' + i);
+      if (el && !el.textContent.includes('已完成')) el.textContent = formatTime(timers[i]);
+    }
+    document.querySelectorAll('.t-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var i = btn.dataset.timer;
+        var act = btn.dataset.act;
+        if (!act) {
+          if (timerIntervals[i]) return;
+          if (localStorage.getItem(dateKey('timerdone-timer-' + i)) === 'true') return;
+          timerIntervals[i] = setInterval(function() {
+            if (timers[i] > 0) {
+              timers[i]--;
+              updateTimerDisplay(i);
+            } else {
+              clearInterval(timerIntervals[i]);
+              timerIntervals[i] = null;
+              localStorage.setItem(dateKey('timerdone-timer-' + i), 'true');
+              var el = document.getElementById('timer-' + i);
+              el.style.color = '#4ea866'; el.textContent = '已完成';
+              showToast('🎉 ' + timerNames[i] + ' 完成!');
+              updateProgress();
+            }
+          }, 1000);
+          showToast(timerNames[i] + ' 开始');
+        } else if (act === 'pause') {
+          clearInterval(timerIntervals[i]);
+          timerIntervals[i] = null;
+          showToast(timerNames[i] + ' 已暂停');
+        } else if (act === 'done') {
+          clearInterval(timerIntervals[i]);
+          timerIntervals[i] = null;
+          timers[i] = initTimes[i];
+          localStorage.setItem(dateKey('timerdone-timer-' + i), 'true');
+          var el2 = document.getElementById('timer-' + i);
+          el2.style.color = '#4ea866'; el2.textContent = '已完成';
+          showToast('✅ ' + timerNames[i] + ' 已打卡');
+          updateProgress();
+        }
+      });
+    });
+
+    // 拍腹股沟计数
+    var patCount = 0;
+    document.querySelectorAll('[data-count="pat"]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var d = parseInt(btn.dataset.d, 10);
+        patCount = Math.max(0, patCount + d);
+        document.getElementById('count-pat').textContent = patCount;
+        localStorage.setItem(dateKey('count-pat'), patCount);
+      });
+    });
+    document.querySelectorAll('#patOpts .opt-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('#patOpts .opt-btn').forEach(function(b) { b.classList.remove('on'); });
+        btn.classList.add('on');
+        var v = parseInt(btn.dataset.val, 10);
+        patCount = v;
+        document.getElementById('count-pat').textContent = patCount;
+        localStorage.setItem(dateKey('count-pat'), patCount);
+        localStorage.setItem(dateKey('opt-pat'), btn.dataset.val);
+        showToast('拍打目标 ' + v + ' 下');
+        updateProgress();
+      });
+    });
+
+    // 初始化
+    renderHeaderDate();
+    loadState();
+  </script>
+</body>
+</html>
