@@ -646,6 +646,35 @@
 
         <div class="card">
           <div class="card-title">
+            <div class="ic ic-purple"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></div>
+            <h3>昨晚睡眠记录</h3>
+            <span class="sub">早上起来填</span>
+          </div>
+          <div class="punch-row" style="border-bottom:none;padding-bottom:2px">
+            <div class="punch-info">
+              <div class="punch-name">睡前喝水了吗</div>
+              <div class="punch-meta">昨晚睡前有没有喝水</div>
+            </div>
+          </div>
+          <div class="opt-group" id="waterOpts" style="margin:6px 0 14px">
+            <div class="opt-btn" data-key="water" data-val="yes">喝了</div>
+            <div class="opt-btn" data-key="water" data-val="no">没喝</div>
+          </div>
+          <div class="punch-row" style="border-bottom:none;padding-bottom:2px">
+            <div class="punch-info">
+              <div class="punch-name">昨晚起夜次数</div>
+            </div>
+          </div>
+          <div class="opt-group" id="nightPeeOpts">
+            <div class="opt-btn" data-key="nightpee" data-val="1">1次</div>
+            <div class="opt-btn" data-key="nightpee" data-val="2">2次</div>
+            <div class="opt-btn" data-key="nightpee" data-val="3">3次</div>
+            <div class="opt-btn" data-key="nightpee" data-val="multi">多次</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
             <div class="ic ic-purple"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
             <h3>晚上烤灯</h3>
             <span class="sub">选已烤穴位</span>
@@ -891,7 +920,7 @@
     var now = new Date();
     document.getElementById('clockTime').textContent = pad(now.getHours()) + ':' + pad(now.getMinutes());
 
-    var totalItems = 16;
+    var totalItems = 18;
     document.getElementById('heroTotal').textContent = totalItems;
 
     // 导航切换
@@ -924,7 +953,7 @@
       if (patEl) patEl.textContent = patCount;
 
       // 单选组
-      ['sleepTime','sunOpts','patOpts','metforminOpts'].forEach(function(gid) {
+      ['sleepTime','sunOpts','patOpts','metforminOpts','waterOpts','nightPeeOpts'].forEach(function(gid) {
         var group = document.getElementById(gid);
         if (!group) return;
         group.querySelectorAll('.opt-btn').forEach(function(btn) {
@@ -983,7 +1012,7 @@
         var group = document.getElementById(gid);
         if (group && group.querySelector('.tag-btn.on')) done++;
       });
-      ['sleepTime','sunOpts','patOpts','metforminOpts'].forEach(function(gid) {
+      ['sleepTime','sunOpts','patOpts','metforminOpts','waterOpts','nightPeeOpts'].forEach(function(gid) {
         var group = document.getElementById(gid);
         if (group && group.querySelector('.opt-btn.on')) done++;
       });
@@ -1014,7 +1043,7 @@
         });
         if (any) done++;
       });
-      ['sleepTime','sunOpts','patOpts','metforminOpts'].forEach(function(gid) {
+      ['sleepTime','sunOpts','patOpts','metforminOpts','waterOpts','nightPeeOpts'].forEach(function(gid) {
         var group = document.getElementById(gid);
         if (!group) return;
         var any = false;
@@ -1073,26 +1102,29 @@
       });
     });
 
-    // 二甲:单选,再点一次已选中的 = 取消(今天没吃)
-    (function() {
-      var group = document.getElementById('metforminOpts');
+    // 可取消单选组:点一下选中,再点已选中的 = 取消
+    function bindCancelableOpt(gid, storageKey, label) {
+      var group = document.getElementById(gid);
       if (!group) return;
       group.querySelectorAll('.opt-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
           var wasOn = btn.classList.contains('on');
           group.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('on'); });
           if (wasOn) {
-            localStorage.removeItem(dateKey('opt-metformin'));
-            showToast('已取消二甲');
+            localStorage.removeItem(dateKey('opt-' + storageKey));
+            showToast('已取消' + label);
           } else {
             btn.classList.add('on');
-            localStorage.setItem(dateKey('opt-metformin'), btn.dataset.val);
-            showToast('二甲 · ' + btn.textContent + ' ✓');
+            localStorage.setItem(dateKey('opt-' + storageKey), btn.dataset.val || btn.textContent);
+            showToast(label + ' · ' + btn.textContent + ' ✓');
           }
           updateProgress();
         });
       });
-    })();
+    }
+    bindCancelableOpt('metforminOpts', 'metformin', '二甲');
+    bindCancelableOpt('waterOpts', 'water', '睡前喝水');
+    bindCancelableOpt('nightPeeOpts', 'nightpee', '起夜');
 
     // 多选标签组
     ['lampTags','nightLampTags'].forEach(function(gid) {
