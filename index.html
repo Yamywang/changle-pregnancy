@@ -586,6 +586,16 @@
             <div class="punch-info"><div class="punch-name">叶酸</div></div>
             <div class="punch-btn" data-key="folic">打卡</div>
           </div>
+          <div class="punch-row" style="margin-bottom:8px">
+            <div class="punch-info">
+              <div class="punch-name">二甲</div>
+              <div class="punch-meta">选今天吃的剂量</div>
+            </div>
+          </div>
+          <div class="opt-group" id="metforminOpts">
+            <div class="opt-btn" data-key="metformin" data-val="1">1粒</div>
+            <div class="opt-btn" data-key="metformin" data-val="2">2粒</div>
+          </div>
         </div>
 
         <div class="card">
@@ -881,7 +891,7 @@
     var now = new Date();
     document.getElementById('clockTime').textContent = pad(now.getHours()) + ':' + pad(now.getMinutes());
 
-    var totalItems = 15;
+    var totalItems = 16;
     document.getElementById('heroTotal').textContent = totalItems;
 
     // 导航切换
@@ -914,7 +924,7 @@
       if (patEl) patEl.textContent = patCount;
 
       // 单选组
-      ['sleepTime','sunOpts','patOpts'].forEach(function(gid) {
+      ['sleepTime','sunOpts','patOpts','metforminOpts'].forEach(function(gid) {
         var group = document.getElementById(gid);
         if (!group) return;
         group.querySelectorAll('.opt-btn').forEach(function(btn) {
@@ -973,7 +983,7 @@
         var group = document.getElementById(gid);
         if (group && group.querySelector('.tag-btn.on')) done++;
       });
-      ['sleepTime','sunOpts','patOpts'].forEach(function(gid) {
+      ['sleepTime','sunOpts','patOpts','metforminOpts'].forEach(function(gid) {
         var group = document.getElementById(gid);
         if (group && group.querySelector('.opt-btn.on')) done++;
       });
@@ -1004,7 +1014,7 @@
         });
         if (any) done++;
       });
-      ['sleepTime','sunOpts','patOpts'].forEach(function(gid) {
+      ['sleepTime','sunOpts','patOpts','metforminOpts'].forEach(function(gid) {
         var group = document.getElementById(gid);
         if (!group) return;
         var any = false;
@@ -1062,6 +1072,27 @@
         });
       });
     });
+
+    // 二甲:单选,再点一次已选中的 = 取消(今天没吃)
+    (function() {
+      var group = document.getElementById('metforminOpts');
+      if (!group) return;
+      group.querySelectorAll('.opt-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var wasOn = btn.classList.contains('on');
+          group.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('on'); });
+          if (wasOn) {
+            localStorage.removeItem(dateKey('opt-metformin'));
+            showToast('已取消二甲');
+          } else {
+            btn.classList.add('on');
+            localStorage.setItem(dateKey('opt-metformin'), btn.dataset.val);
+            showToast('二甲 · ' + btn.textContent + ' ✓');
+          }
+          updateProgress();
+        });
+      });
+    })();
 
     // 多选标签组
     ['lampTags','nightLampTags'].forEach(function(gid) {
