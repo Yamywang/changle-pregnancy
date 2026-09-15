@@ -634,13 +634,14 @@
         <div class="card">
           <div class="card-title">
             <div class="ic ic-purple"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
-            <h3>早睡</h3>
-            <span class="sub">选择今晚目标</span>
+            <h3>昨晚早睡了吗</h3>
+            <span class="sub">早上起来填</span>
           </div>
           <div class="opt-group" id="sleepTime">
-            <div class="opt-btn" data-key="sleep">21:00</div>
-            <div class="opt-btn" data-key="sleep">21:30</div>
-            <div class="opt-btn on" data-key="sleep">22:00</div>
+            <div class="opt-btn" data-key="sleep" data-val="21:00">21点</div>
+            <div class="opt-btn" data-key="sleep" data-val="21:30">21点30</div>
+            <div class="opt-btn" data-key="sleep" data-val="22:00">22点</div>
+            <div class="opt-btn" data-key="sleep" data-val="late">晚睡</div>
           </div>
         </div>
 
@@ -1087,7 +1088,7 @@
     }
 
     // 单选组(绑定事件,状态由 loadState 恢复)
-    ['sleepTime','sunOpts','patOpts'].forEach(function(gid) {
+    ['sunOpts','patOpts'].forEach(function(gid) {
       var group = document.getElementById(gid);
       if (!group) return;
       group.querySelectorAll('.opt-btn').forEach(function(btn) {
@@ -1122,6 +1123,7 @@
         });
       });
     }
+    bindCancelableOpt('sleepTime', 'sleep', '早睡');
     bindCancelableOpt('metforminOpts', 'metformin', '二甲');
     bindCancelableOpt('waterOpts', 'water', '睡前喝水');
     bindCancelableOpt('nightPeeOpts', 'nightpee', '起夜');
