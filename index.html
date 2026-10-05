@@ -130,6 +130,56 @@
       flex-shrink: 0;
     }
     .nav-item .label { font-size: 10px; text-align: center; line-height: 1.2; }
+    /* 天数徽章 */
+    .nav-item .ic.days-ic {
+      background: var(--primary);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+    .nav-item .ic.days-ic span { display: block; }
+    .nav-item.active .ic.days-ic { background: var(--primary-dark); }
+    /* 第几天页面 */
+    .days-hero {
+      display: flex; align-items: baseline; justify-content: center;
+      gap: 6px;
+      padding: 14px 0 4px;
+    }
+    .days-num {
+      font-size: 54px; font-weight: 800;
+      color: var(--primary-dark);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -1px;
+    }
+    .days-unit { font-size: 16px; font-weight: 700; color: var(--primary); }
+    .days-note {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 14px;
+    }
+    .days-grid { display: flex; gap: 8px; }
+    .days-cell {
+      flex: 1;
+      background: var(--primary-very-soft);
+      border-radius: 10px;
+      padding: 9px 10px;
+      text-align: center;
+    }
+    .days-cell .dc-label { font-size: 10px; color: var(--text-sub); }
+    .days-cell .dc-val { font-size: 13px; font-weight: 700; color: var(--text); margin-top: 3px; font-variant-numeric: tabular-nums; }
+    .days-week {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+    }
+    .days-week b { color: var(--primary-dark); font-weight: 700; }
 
     .ic-pink { background: var(--primary-soft); color: var(--primary-dark); }
     .ic-orange { background: var(--orange-soft); color: var(--orange); }
@@ -519,6 +569,10 @@
         </div>
         <div class="label">生理期</div>
       </div>
+      <div class="nav-item" data-page="days">
+        <div class="ic ic-pink days-ic"><span id="navDays">0</span></div>
+        <div class="label">第几天</div>
+      </div>
     </div>
 
     <!-- 内容区 -->
@@ -863,6 +917,33 @@
         </div>
       </div>
 
+      <!-- 第几天 -->
+      <div class="page" data-page="days">
+        <div class="card">
+          <div class="card-title">
+            <div class="ic ic-pink"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg></div>
+            <h3>备孕第几天</h3>
+            <span class="sub" id="daysSub">从 2025.10.14 起</span>
+          </div>
+          <div class="days-hero">
+            <div class="days-num" id="daysNum">0</div>
+            <div class="days-unit">天</div>
+          </div>
+          <div class="days-note" id="daysNote">距离 2025.10.14 已坚持 0 天</div>
+          <div class="days-grid">
+            <div class="days-cell">
+              <div class="dc-label">起始日期</div>
+              <div class="dc-val">2025.10.14</div>
+            </div>
+            <div class="days-cell">
+              <div class="dc-label">查看日期</div>
+              <div class="dc-val" id="daysViewDate">--</div>
+            </div>
+          </div>
+          <div class="days-week" id="daysWeek">--</div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -901,6 +982,46 @@
 
     function dateKey(prefix) { return 'cl-' + currentDate + '-' + prefix; }
 
+    // ===== 备孕天数:从 2025-10-14 起算 =====
+    var START_DATE = '2025-10-14';
+    function daysSinceStart(dateStr) {
+      var s = parseDate(START_DATE);
+      var e = parseDate(dateStr);
+      // 归一化到当天 0 点,避免时区/时分秒干扰
+      s.setHours(0, 0, 0, 0);
+      e.setHours(0, 0, 0, 0);
+      var diff = Math.round((e - s) / 86400000) + 1; // 起始日算第 1 天
+      return diff;
+    }
+    function renderDays() {
+      var n = daysSinceStart(currentDate);
+      var navEl = document.getElementById('navDays');
+      if (navEl) navEl.textContent = n;
+      var numEl = document.getElementById('daysNum');
+      if (numEl) numEl.textContent = n;
+      var noteEl = document.getElementById('daysNote');
+      if (noteEl) {
+        if (n < 1) {
+          noteEl.textContent = '还没到起始日期 2025.10.14';
+        } else {
+          noteEl.textContent = '距离 2025.10.14 已坚持 ' + n + ' 天';
+        }
+      }
+      var viewEl = document.getElementById('daysViewDate');
+      if (viewEl) {
+        var d = parseDate(currentDate);
+        viewEl.textContent = d.getFullYear() + '.' + pad(d.getMonth()+1) + '.' + pad(d.getDate());
+      }
+      var weekEl = document.getElementById('daysWeek');
+      if (weekEl) {
+        var full = Math.floor(n / 7);
+        var rest = n % 7;
+        var txt = '第 <b>' + (full + 1) + '</b> 周';
+        if (rest > 0) txt += ' · 第 <b>' + rest + '</b> 天';
+        weekEl.innerHTML = txt;
+      }
+    }
+
     // 显示日期到 header
     function renderHeaderDate() {
       var d = parseDate(currentDate);
@@ -915,6 +1036,7 @@
         banner.classList.add('show');
         document.getElementById('bannerDate').textContent = (d.getMonth()+1) + '/' + d.getDate();
       }
+      renderDays();
     }
 
     // 时钟
