@@ -729,6 +729,7 @@
             </div>
           </div>
           <div class="opt-group" id="nightPeeOpts">
+            <div class="opt-btn" data-key="nightpee" data-val="0">0次</div>
             <div class="opt-btn" data-key="nightpee" data-val="1">1次</div>
             <div class="opt-btn" data-key="nightpee" data-val="2">2次</div>
             <div class="opt-btn" data-key="nightpee" data-val="3">3次</div>
@@ -738,15 +739,14 @@
 
         <div class="card">
           <div class="card-title">
-            <div class="ic ic-purple"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
-            <h3>晚上烤灯</h3>
-            <span class="sub">选已烤穴位</span>
+            <div class="ic ic-purple"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7s6.5 6.6 6.5 11.3a6.5 6.5 0 0 1-13 0C5.5 9.3 12 2.7 12 2.7z"/></svg></div>
+            <h3>晚上泡脚</h3>
+            <span class="sub">选泡脚时长</span>
           </div>
-          <div class="tag-group" id="nightLampTags">
-            <div class="tag-btn" data-key="nl-baihui">鹳顶</div>
-            <div class="tag-btn" data-key="nl-zusanli">足三里</div>
-            <div class="tag-btn" data-key="nl-jiexi">解溪</div>
-            <div class="tag-btn" data-key="nl-yongquan">涌泉</div>
+          <div class="opt-group" id="nightFootOpts">
+            <div class="opt-btn" data-key="nightfoot" data-val="15">15分钟</div>
+            <div class="opt-btn" data-key="nightfoot" data-val="20">20分钟</div>
+            <div class="opt-btn" data-key="nightfoot" data-val="30">30分钟</div>
           </div>
         </div>
       </div>
@@ -1084,7 +1084,7 @@
       if (patEl) patEl.textContent = patCount;
 
       // 单选组
-      ['sleepTime','sunOpts','patOpts','metforminOpts','waterOpts','nightPeeOpts'].forEach(function(gid) {
+      ['sleepTime','sunOpts','patOpts','metforminOpts','waterOpts','nightPeeOpts','nightFootOpts'].forEach(function(gid) {
         var group = document.getElementById(gid);
         if (!group) return;
         group.querySelectorAll('.opt-btn').forEach(function(btn) {
@@ -1094,7 +1094,7 @@
         });
       });
       // 多选标签组
-      ['lampTags','nightLampTags'].forEach(function(gid) {
+      ['lampTags'].forEach(function(gid) {
         var group = document.getElementById(gid);
         if (!group) return;
         group.querySelectorAll('.tag-btn').forEach(function(btn) {
@@ -1139,11 +1139,11 @@
       ['timer-1','timer-2','timer-3'].forEach(function(k) {
         if (localStorage.getItem(dateKey('timerdone-' + k)) === 'true') done++;
       });
-      ['lampTags','nightLampTags'].forEach(function(gid) {
+      ['lampTags'].forEach(function(gid) {
         var group = document.getElementById(gid);
         if (group && group.querySelector('.tag-btn.on')) done++;
       });
-      ['sleepTime','sunOpts','patOpts','metforminOpts','waterOpts','nightPeeOpts'].forEach(function(gid) {
+      ['sleepTime','sunOpts','patOpts','metforminOpts','waterOpts','nightPeeOpts','nightFootOpts'].forEach(function(gid) {
         var group = document.getElementById(gid);
         if (group && group.querySelector('.opt-btn.on')) done++;
       });
@@ -1165,7 +1165,7 @@
       ['timer-1','timer-2','timer-3'].forEach(function(k) {
         if (localStorage.getItem('cl-' + dateStr + '-timerdone-' + k) === 'true') done++;
       });
-      ['lampTags','nightLampTags'].forEach(function(gid) {
+      ['lampTags'].forEach(function(gid) {
         var group = document.getElementById(gid);
         if (!group) return;
         var any = false;
@@ -1174,7 +1174,7 @@
         });
         if (any) done++;
       });
-      ['sleepTime','sunOpts','patOpts','metforminOpts','waterOpts','nightPeeOpts'].forEach(function(gid) {
+      ['sleepTime','sunOpts','patOpts','metforminOpts','waterOpts','nightPeeOpts','nightFootOpts'].forEach(function(gid) {
         var group = document.getElementById(gid);
         if (!group) return;
         var any = false;
@@ -1257,9 +1257,10 @@
     bindCancelableOpt('metforminOpts', 'metformin', '二甲');
     bindCancelableOpt('waterOpts', 'water', '睡前喝水');
     bindCancelableOpt('nightPeeOpts', 'nightpee', '起夜');
+    bindCancelableOpt('nightFootOpts', 'nightfoot', '泡脚');
 
     // 多选标签组
-    ['lampTags','nightLampTags'].forEach(function(gid) {
+    ['lampTags'].forEach(function(gid) {
       var group = document.getElementById(gid);
       if (!group) return;
       group.querySelectorAll('.tag-btn').forEach(function(btn) {
