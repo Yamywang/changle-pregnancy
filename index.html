@@ -130,6 +130,14 @@
       flex-shrink: 0;
     }
     .nav-item .label { font-size: 10px; text-align: center; line-height: 1.2; }
+    /* 天数栏目文字较长,缩小并允许换行 */
+    .nav-item[data-page="days"] .label {
+      font-size: 9px;
+      line-height: 1.15;
+      letter-spacing: -0.3px;
+      max-width: 54px;
+      word-break: break-all;
+    }
     /* 天数徽章 */
     .nav-item .ic.days-ic {
       background: var(--primary);
@@ -571,7 +579,7 @@
       </div>
       <div class="nav-item" data-page="days">
         <div class="ic ic-pink days-ic"><span id="navDays">0</span></div>
-        <div class="label">第几天</div>
+        <div class="label">五剑客第几天</div>
       </div>
     </div>
 
@@ -922,7 +930,7 @@
         <div class="card">
           <div class="card-title">
             <div class="ic ic-pink"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg></div>
-            <h3>备孕第几天</h3>
+            <h3>备孕五剑客第几天</h3>
             <span class="sub" id="daysSub">从 2025.10.14 起</span>
           </div>
           <div class="days-hero">
